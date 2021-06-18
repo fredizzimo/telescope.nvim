@@ -204,6 +204,10 @@ lsp.implementations = function(opts)
   return list_or_jump("textDocument/implementation", "LSP Implementations", opts)
 end
 
+lsp.declarations = function(opts)
+  return list_or_jump("textDocument/declaration",  'LSP Declarations', opts)
+end
+
 lsp.document_symbols = function(opts)
   local params = vim.lsp.util.make_position_params(opts.winnr)
   vim.lsp.buf_request(opts.bufnr, "textDocument/documentSymbol", params, function(err, result, _, _)
@@ -371,6 +375,7 @@ local feature_map = {
   ["definitions"] = "definitionProvider",
   ["type_definitions"] = "typeDefinitionProvider",
   ["implementations"] = "implementationProvider",
+  ["declarations"] = "declaration",
   ["workspace_symbols"] = "workspaceSymbolProvider",
   ["incoming_calls"] = "callHierarchyProvider",
   ["outgoing_calls"] = "callHierarchyProvider",

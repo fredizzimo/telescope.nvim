@@ -420,6 +420,11 @@ builtin.lsp_type_definitions = require("telescope.builtin.__lsp").type_definitio
 ---@field trim_text boolean: trim results text (default: false)
 builtin.lsp_implementations = require_on_exported_call("telescope.builtin.__lsp").implementations
 
+--- Goto the declaration of the word under the cursor if there's only one, otherwise show all options in Telescope
+---@param opts table: options to pass to the picker
+---@field jump_type string: how to goto definition if there is only one, values: "tab", "split", "vsplit", "never"
+builtin.lsp_declarations = require('telescope.builtin.__lsp').declarations
+
 --- Lists LSP document symbols in the current buffer
 --- - Default keymaps:
 ---   - `<C-l>`: show autocompletion menu to prefilter your query by type of symbol you want to see (i.e. `:variable:`)
