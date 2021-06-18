@@ -330,6 +330,11 @@ builtin.lsp_definitions = require("telescope.builtin.lsp").definitions
 ---@field jump_type string: how to goto implementation if there is only one, values: "tab", "split", "vsplit", "never"
 builtin.lsp_implementations = require("telescope.builtin.lsp").implementations
 
+--- Goto the declaration of the word under the cursor if there's only one, otherwise show all options in Telescope
+---@param opts table: options to pass to the picker
+---@field jump_type string: how to goto definition if there is only one, values: "tab", "split", "vsplit", "never"
+builtin.lsp_declarations = require('telescope.builtin.lsp').declarations
+
 --- Lists any LSP actions for the word under the cursor which can be triggered with `<cr>`
 ---@param opts table: options to pass to the picker
 builtin.lsp_code_actions = require("telescope.builtin.lsp").code_actions
