@@ -381,8 +381,8 @@ function make_entry.gen_from_lsp_symbols(opts)
 
   return function(entry)
     local filename = entry.filename or vim.api.nvim_buf_get_name(entry.bufnr)
-    local symbol_msg = entry.text:gsub(".* | ", "")
-    local symbol_type, symbol_name = symbol_msg:match "%[(.+)%]%s+(.*)"
+    local symbol_msg = entry.text:gsub("-*|-*| [", "[")
+    local symbol_type, symbol_name = symbol_msg:match "%[(.-)%]%s+(.*)"
 
     local ordinal = ""
     if not opts.ignore_filename and filename then
