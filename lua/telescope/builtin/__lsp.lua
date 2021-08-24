@@ -6,8 +6,52 @@ local finders = require "telescope.finders"
 local make_entry = require "telescope.make_entry"
 local pickers = require "telescope.pickers"
 local utils = require "telescope.utils"
+local protocol = require "vim.lsp.protocol"
 
 local lsp = {}
+
+-- Acording to LSP spec, if the client set "symbolKind.valueSet",
+-- the client must handle it properly even if it receives a value outside the specification.
+-- https://microsoft.github.io/language-server-protocol/specifications/specification-current/#textDocument_documentSymbol
+local function get_symbol_kind_name(symbol_kind)
+  return protocol.SymbolKind[symbol_kind] or "Unknown"
+end
+
+local function symbols_to_items(symbols, bufnr)
+  ---@private
+  local function _symbols_to_items(_symbols, _items, _bufnr)
+    for _, symbol in ipairs(_symbols) do
+      if symbol.location then -- SymbolInformation type
+        local range = symbol.location.range
+        local kind = get_symbol_kind_name(symbol.kind)
+        table.insert(_items, {
+          filename = vim.uri_to_fname(symbol.location.uri),
+          lnum = range.start.line + 1,
+          col = range.start.character + 1,
+          kind = kind,
+          text = '['..kind..'] '..symbol.name,
+        })
+      elseif symbol.selectionRange then -- DocumentSymbole type
+        local kind = get_symbol_kind_name(symbol.kind)
+        table.insert(_items, {
+          -- bufnr = _bufnr,
+          filename = vim.api.nvim_buf_get_name(_bufnr),
+          lnum = symbol.selectionRange.start.line + 1,
+          col = symbol.selectionRange.start.character + 1,
+          kind = kind,
+          text = '['..kind..'] '..symbol.name
+        })
+        if symbol.children then
+          for _, v in ipairs(_symbols_to_items(symbol.children, _items, _bufnr)) do
+            vim.list_extend(_items, v)
+          end
+        end
+      end
+    end
+    return _items
+  end
+  return _symbols_to_items(symbols, {}, bufnr)
+end
 
 lsp.references = function(opts)
   local filepath = vim.api.nvim_buf_get_name(opts.bufnr)
@@ -224,7 +268,7 @@ lsp.document_symbols = function(opts)
       return
     end
 
-    local locations = vim.lsp.util.symbols_to_items(result or {}, opts.bufnr) or {}
+    local locations = symbols_to_items(result or {}, opts.bufnr) or {}
     locations = utils.filter_symbols(locations, opts)
     if locations == nil then
       -- error message already printed in `utils.filter_symbols`
@@ -267,7 +311,7 @@ lsp.workspace_symbols = function(opts)
       return
     end
 
-    local locations = vim.lsp.util.symbols_to_items(server_result or {}, opts.bufnr) or {}
+    local locations = symbols_to_items(server_result or {}, opts.bufnr) or {}
     locations = utils.filter_symbols(locations, opts)
     if locations == nil then
       -- error message already printed in `utils.filter_symbols`
@@ -314,7 +358,7 @@ local function get_workspace_symbols_requester(bufnr, opts)
     local err, res = rx()
     assert(not err, err)
 
-    local locations = vim.lsp.util.symbols_to_items(res or {}, bufnr) or {}
+    local locations = symbols_to_items(res or {}, bufnr) or {}
     if not vim.tbl_isempty(locations) then
       locations = utils.filter_symbols(locations, opts) or {}
     end
