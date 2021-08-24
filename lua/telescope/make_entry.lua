@@ -542,8 +542,9 @@ function make_entry.gen_from_lsp_symbols(opts)
   local get_filename = get_filename_fn()
   return function(entry)
     local filename = vim.F.if_nil(entry.filename, get_filename(entry.bufnr))
-    local symbol_msg = entry.text
-    local symbol_type, symbol_name = symbol_msg:match "%[(.+)%]%s+(.*)"
+    local symbol_type = entry.symbol_type
+    local symbol_name = entry.name
+
     local ordinal = ""
     if not hidden and filename then
       ordinal = filename .. " "
