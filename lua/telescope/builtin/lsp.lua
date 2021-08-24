@@ -24,26 +24,31 @@ local function symbols_to_items(symbols, bufnr)
   ---@private
   local function _symbols_to_items(_symbols, _items, _bufnr)
     for _, symbol in ipairs(_symbols) do
+      local mt = {
+        __index = symbol
+      }
       if symbol.location then -- SymbolInformation type
         local range = symbol.location.range
         local kind = get_symbol_kind_name(symbol.kind)
-        table.insert(_items, {
+        local t = {
           filename = vim.uri_to_fname(symbol.location.uri),
           lnum = range.start.line + 1,
           col = range.start.character + 1,
-          kind = kind,
-          text = '['..kind..'] '..symbol.name,
-        })
-      elseif symbol.selectionRange then -- DocumentSymbole type
+          symbol_type = kind,
+        }
+        setmetatable(t, mt)
+        table.insert(_items, t)
+      elseif symbol.selectionRange then -- DocumentSymbol type
         local kind = get_symbol_kind_name(symbol.kind)
-        table.insert(_items, {
+        local t = {
           -- bufnr = _bufnr,
           filename = vim.api.nvim_buf_get_name(_bufnr),
           lnum = symbol.selectionRange.start.line + 1,
           col = symbol.selectionRange.start.character + 1,
-          kind = kind,
-          text = '['..kind..'] '..symbol.name
-        })
+          symbol_type = kind,
+        }
+        setmetatable(t, mt)
+        table.insert(_items, t)
         if symbol.children then
           for _, v in ipairs(_symbols_to_items(symbol.children, _items, _bufnr)) do
             vim.list_extend(_items, v)
