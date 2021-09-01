@@ -272,7 +272,8 @@ function Picker:highlight_one_row(results_bufnr, prompt, display, row)
     return
   end
 
-  local highlights = self.sorter:highlighter(prompt, display)
+  local entry = self.manager:get_entry(self:get_index(row))
+  local highlights = self.sorter:highlighter(prompt, display, entry)
 
   if highlights then
     for _, hl in ipairs(highlights) do
@@ -295,7 +296,6 @@ function Picker:highlight_one_row(results_bufnr, prompt, display, row)
     end
   end
 
-  local entry = self.manager:get_entry(self:get_index(row))
   self.highlighter:hi_multiselect(row, self:is_multi_selected(entry))
 end
 
