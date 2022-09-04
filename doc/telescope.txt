@@ -1506,6 +1506,19 @@ builtin.lsp_implementations({opts})  *telescope.builtin.lsp_implementations()*
         {trim_text}   (boolean)  trim results text (default: false)
 
 
+builtin.lsp_declarations({opts})        *telescope.builtin.lsp_declarations()*
+    Goto the declaration of the word under the cursor if there's only one,
+    otherwise show all options in Telescope
+
+
+    Parameters: ~
+        {opts} (table)  options to pass to the picker
+
+    Options: ~
+        {jump_type} (string)  how to goto definition if there is only one,
+                              values: "tab", "split", "vsplit", "never"
+
+
 builtin.lsp_document_symbols({opts}) *telescope.builtin.lsp_document_symbols()*
     Lists LSP document symbols in the current buffer
     - Default keymaps:
